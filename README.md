@@ -14,3 +14,7 @@
 ## Step 1: Initialization: Maven project structure, JUnit5, ci setup. (committed on 2025-09-30)
 
 - Implementation Maven project structure, JUnit5, CI Setup.
+
+## Step 2: Feature Metrics: Performance counters and CSV export
+
+- Implementation `PerfomanceTracker.java class` and open folder `targets`, for `metrics.csv` file.
