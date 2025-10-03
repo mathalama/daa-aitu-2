@@ -18,3 +18,11 @@
 ## Step 2: Feature Metrics: Performance counters and CSV export
 
 - Implementation `PerfomanceTracker.java class` and open folder `targets`, for `metrics.csv` file.
+
+## Step 3: Feature algorithm: baseline HopeSort implementation
+
+- Implementation `HeapSort.java` class.
+
+## Step 4: Test algorithm comprehensive test suite with edge cases
+
+- Implementation `HeapSortTest.java` class.
