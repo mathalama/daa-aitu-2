@@ -26,3 +26,7 @@
 ## Step 4: Test algorithm comprehensive test suite with edge cases
 
 - Implementation `HeapSortTest.java` class.
+
+## Step 5: Feature CLI: benchmark runner with configurable input sizes
+
+- Implementation `BenchmarkRunner.java` class.
