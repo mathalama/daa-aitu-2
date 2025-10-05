@@ -2,50 +2,58 @@ package algorithms;
 
 import metrics.PerformanceTracker;
 
-public class HeapSort {
-    public static void heapSort(int[] arr, PerformanceTracker tracker) {
-        int n = arr.length;
-
-        for (int i = n / 2 - 1; i >= 0; i--) {
-            heapify(arr, n, i, tracker);
-        }
-
-        for (int i = n - 1; i >= 0; i--) {
-            int temp = arr[0];
-            arr[0] = arr[i];
-            arr[i] = temp;
-            tracker.incrementComparisonCounter();
-            tracker.incrementAllocationCounter();
-            tracker.increaseRecursionDepth();
-
-            heapify(arr, i, 0, tracker);
-            tracker.decreaseRecursionDepth();
+public final class HeapSort {
+    private static void buildMaxHeap(int[] a, int n, PerformanceTracker Tracker) {
+        for (int i = (n >>> 1) - 1; i >= 0; i--) {
+            Tracker.increaseRecursionDepth();
+            try {
+                siftDown(a, i, n, Tracker);
+            } finally {
+                Tracker.decreaseRecursionDepth();
+            }
         }
     }
 
-    private static void heapify(int[] arr, int n, int i, PerformanceTracker tracker) {
-        int largest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
+    public static void heapSort(int[] a, PerformanceTracker Tracker) {
+        final int n = a.length;
+        if (n < 2) return;
 
-        if (left < n && arr[left] > arr[largest]) {
-            largest = left;
-            tracker.incrementComparisonCounter();
+        buildMaxHeap(a, n, Tracker);
+
+        for (int end = n - 1; end > 0; end--) {
+            int tmp = a[0]; Tracker.incrementAllocationCounter();
+            a[0] = a[end];  Tracker.incrementAllocationCounter();
+            a[end] = tmp;   Tracker.incrementAllocationCounter();
+
+            Tracker.increaseRecursionDepth();
+            try {
+                siftDown(a, 0, end, Tracker);
+            } finally {
+                Tracker.decreaseRecursionDepth();
+            }
         }
+    }
 
-        if (right < n && arr[right] > arr[largest]) {
-            largest = right;
-            tracker.incrementComparisonCounter();
+    private static void siftDown(int[] a, int i, int heapSize, PerformanceTracker Tracker) {
+        int x = a[i]; Tracker.incrementAllocationCounter();
+        while (true) {
+            int left = (i << 1) + 1;
+            if (left >= heapSize) break;
+
+            int right = left + 1;
+            int child = left;
+
+            if (right < heapSize) {
+                Tracker.incrementComparisonCounter();
+                if (a[right] > a[left]) child = right;
+            }
+
+            Tracker.incrementComparisonCounter();
+            if (a[child] > x) {
+                a[i] = a[child]; Tracker.incrementAllocationCounter();
+                i = child;
+            } else break;
         }
-
-        if (largest != i) {
-            int swap = arr[i];
-            arr[i] = arr[largest];
-            arr[largest] = swap;
-            tracker.incrementAllocationCounter();
-            tracker.incrementComparisonCounter();
-
-            heapify(arr, n, largest, tracker);
-        }
+        a[i] = x; Tracker.incrementAllocationCounter();
     }
 }
