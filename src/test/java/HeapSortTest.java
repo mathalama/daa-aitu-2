@@ -13,7 +13,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HeapSortTest {
-    private static final String METRICS_FILE_NAME = "targets/metrics.csv";
+    private static final String METRICS_FILE_NAME = "target/metrics.csv";
 
     @BeforeAll
     static void clearMetricsFile() {
@@ -40,7 +40,7 @@ public class HeapSortTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, 1, 10, 50, 100, 500, 1000, 2000})
+    @ValueSource(ints = {10, 100, 1000, 10000, 100000})
     public void testHeapSortWithDifferentArraySizes(int size) throws IOException {
         int[] arr = new int[size];
         for (int i = 0; i < size; i++) {

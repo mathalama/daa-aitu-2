@@ -62,38 +62,48 @@ public final class BenchmarkRunner {
         System.out.println("    --sizes=100,1000,10000 \\");
         System.out.println("    --trials=3 \\");
         System.out.println("    --dist=random|sorted|reversed|nearly-sorted \\");
-        System.out.println("    --seed=42");
+        System.out.println("    --seed=42 \\");
+        System.out.println("    --warmup=1   # optional warmup trials per size");
     }
 
     public static void main(String[] args) throws IOException {
         Map<String,String> a = argsMap(args);
         if (a.isEmpty() || a.containsKey("help")) { usage(); return; }
 
-        int[] sizes = parseSizes(a.containsKey("sizes") ? a.get("sizes") : "100,1000,10000");
-        int trials = Integer.parseInt(a.containsKey("trials") ? a.get("trials") : "3");
-        String dist = a.containsKey("dist") ? a.get("dist") : "random";
-        long seed = Long.parseLong(a.containsKey("seed") ? a.get("seed") : "42");
+        int[] sizes = parseSizes(a.getOrDefault("sizes", "100,1000,10000"));
+        int trials = Integer.parseInt(a.getOrDefault("trials", "3"));
+        int warmup = Integer.parseInt(a.getOrDefault("warmup", "0"));
+        String dist = a.getOrDefault("dist", "random");
+        long seed = Long.parseLong(a.getOrDefault("seed", "42"));
 
-        new File("targets").mkdirs();
+        new File("target").mkdirs();
 
         System.out.println("Config: dist=" + dist + ", trials=" + trials +
-                ", seed=" + seed + ", sizes=" + Arrays.toString(sizes));
+                ", warmup=" + warmup + ", seed=" + seed + ", sizes=" + Arrays.toString(sizes));
 
         PerformanceTracker tracker = new PerformanceTracker();
 
         for (int n : sizes) {
+            for (int w = 0; w < warmup; w++) {
+                int[] arrW = genArray(n, dist, seed + n + 1000 + w);
+                HeapSort.heapSort(arrW, tracker);
+                tracker.reset();
+            }
+
             for (int t = 1; t <= trials; t++) {
                 tracker.reset();
 
                 int[] arr = genArray(n, dist, seed + n + t);
-                long start = tracker.getTimeBeforeExecution();
+                long start = System.nanoTime();
                 HeapSort.heapSort(arr, tracker);
-                long dur = tracker.getTimeAfterExecution(start);
+                long dur = System.nanoTime() - start;
 
-                tracker.writeMetricsToCSV(dur, "HeapSort_Size " + n);
+                String name = "HeapSort_" + dist + "_Size " + n;
+                tracker.writeMetricsToCSV(dur, name);
                 System.out.println("HeapSort n=" + n + " trial=" + t + " -> " + dur + " ns");
             }
         }
-        System.out.println("OK -> targets/metrics.csv");
+        System.out.println("OK -> target/metrics.csv");
     }
 }
+

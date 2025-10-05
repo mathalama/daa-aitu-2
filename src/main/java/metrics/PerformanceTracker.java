@@ -10,7 +10,6 @@ public class PerformanceTracker {
     private final LongAdder allocationCounter = new LongAdder();
     private final LongAdder currentRecursionDepth = new LongAdder();
     private final LongAdder maxRecursionDepth = new LongAdder();
-    protected long lastLoggedTime = 0;
 
     public void incrementComparisonCounter() {
         comparisonCounter.increment();
@@ -22,7 +21,11 @@ public class PerformanceTracker {
 
     public void increaseRecursionDepth() {
         currentRecursionDepth.increment();
-        maxRecursionDepth.add(currentRecursionDepth.sum());
+        long currentDepth = currentRecursionDepth.sum();
+        if (currentDepth > maxRecursionDepth.sum()) {
+            maxRecursionDepth.reset();
+            maxRecursionDepth.add(currentDepth);
+        }
     }
 
     public void decreaseRecursionDepth() {
@@ -37,25 +40,18 @@ public class PerformanceTracker {
     }
 
     public void writeMetricsToCSV(long timeTaken, String algorithmName) throws IOException {
-        long currentTime = System.nanoTime();
-
-        try (FileWriter fileWriter = new FileWriter("targets/metrics.csv", true);
+        try (FileWriter fileWriter = new FileWriter("target/metrics.csv", true);
              PrintWriter printWriter = new PrintWriter(fileWriter)) {
-            printWriter.printf("%s, %d, %d, %d, %d\n",
+            printWriter.printf("%s,%d,%d,%d,%d%n",
                     algorithmName,
                     timeTaken,
                     comparisonCounter.sum(),
                     allocationCounter.sum(),
                     maxRecursionDepth.sum());
-            lastLoggedTime = currentTime;
         }
     }
 
-    public long getTimeBeforeExecution() {
-        return System.nanoTime();
-    }
-
-    public long getTimeAfterExecution(long startTime) {
-        return System.nanoTime() - startTime;
-    }
+    public long getComparisonCount() { return comparisonCounter.sum(); }
+    public long getAllocationCount() { return allocationCounter.sum(); }
+    public long getMaxRecursionDepth() { return maxRecursionDepth.sum(); }
 }
